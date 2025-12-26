@@ -9,6 +9,12 @@ if (isset($_SESSION['registration_success'])) {
     unset($_SESSION['registration_success']);
 }
 
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    header('Location: dashboard.php');
+    exit();
+}
+
 $error = '';
 
 // Handle form submission
@@ -36,8 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['prenom'] = $user['prenom'];
         $_SESSION['email'] = $user['email'];
 
-        // Redirect to dashboard
-        header('Location: dashboard.php');
+        // Redirect based on role
+        if ($user['role'] === 'coach') {
+            header('Location: dashboard.php');
+        } else {
+            header('Location: sportif_dashboard.php');
+        }
         exit();
     } catch (Exception $e) {
         $error = $e->getMessage();

@@ -3,18 +3,31 @@ session_start();
 require_once '../classes/coaches.php';
 require_once '../classes/sportif.php';
 
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'coach') {
+        header('Location: dashboard.php');
+    } else {
+        header('Location: sportif_dashboard.php');
+    }
+    exit();
+}
+
 $error = '';
 $success = '';
 
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $nom = $_POST['nom'];;
-        $prenom = $_POST['prenom'];
-        $email = $_POST['email'];
-        $password = $_POST['password'] ;
-        $confirmPassword = $_POST['confirm_password'];
-        $role = $_POST['role'] ;
+        // Validate required fields
+        $nom = trim($_POST['nom'] ?? '');
+        $prenom = trim($_POST['prenom'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $role = $_POST['role'] ?? '';
 
+        // Basic validation
         if (empty($nom) || empty($prenom) || empty($email) || empty($password)) {
             throw new Exception("Tous les champs sont obligatoires");
         }
@@ -31,14 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Le mot de passe doit contenir au moins 6 caractères");
         }
 
+        // Check if email already exists
         if (Utilisateur::findByEmail($email)) {
             throw new Exception("Cet email est déjà utilisé");
         }
 
+        // Register based on role
         if ($role === 'coach') {
-            $discipline = $_POST['discipline'] ;
-            $experience = $_POST['experience'];
-            $description = $_POST['description'];
+            $discipline = trim($_POST['discipline'] ?? '');
+            $experience = intval($_POST['experience'] ?? 0);
+            $description = trim($_POST['description'] ?? '');
 
             if (empty($discipline)) {
                 throw new Exception("La discipline est obligatoire pour les coaches");
@@ -55,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $success = "Inscription réussie ! Redirection vers la page de connexion...";
 
-        header("refresh:0;url=login.php");
+        // Redirect to login after 2 seconds
+        header("refresh:2;url=login.php");
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -388,7 +404,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
         <?php endif; ?>
-        
 
         <form method="POST" action="" id="registerForm">
             <div class="form-group">
@@ -396,11 +411,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="role-selection">
                     <div class="role-option" onclick="selectRole('sportif')">
                         <input type="radio" name="role" value="sportif" id="role-sportif" required>
-                        <label for="role-sportif">Sportif</label>
+                        <label for="role-sportif">🏃 Sportif</label>
                     </div>
                     <div class="role-option" onclick="selectRole('coach')">
                         <input type="radio" name="role" value="coach" id="role-coach" required>
-                        <label for="role-coach">Coach</label>
+                        <label for="role-coach">🎯 Coach</label>
                     </div>
                 </div>
             </div>
