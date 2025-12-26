@@ -124,7 +124,7 @@ class Reservation
                 s.*,
                 u.nom as coach_nom,
                 u.prenom as coach_prenom,
-                c.descipline as coach_discipline
+                c.discipline as coach_discipline
             FROM reservations r
             JOIN seances s ON r.seance_id = s.id
             JOIN coaches c ON s.coach_id = c.id
@@ -170,7 +170,7 @@ class Reservation
                 s.*,
                 u.nom as coach_nom,
                 u.prenom as coach_prenom,
-                c.descipline as coach_discipline,
+                c.discipline as coach_discipline,
                 c.experience as coach_experience,
                 c.description as coach_description
             FROM seances s
